@@ -1,0 +1,14 @@
+{application, eart,
+ [
+  {description, "An Erlang adaptive radix tree library"},
+  {vsn, "1"},
+  {modules, [
+             eart
+            ]},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib
+                 ]},
+  {env, []}
+ ]}.
