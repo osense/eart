@@ -1,6 +1,6 @@
 -module(eart).
 
--export([new/0, insert/3]).
+-export([new/0, insert/3, lookup/2]).
 -compile([export_all]).
 
 
@@ -41,3 +41,28 @@ insert_into_children(Key, Value, [Child = {ChildKey, _, _} | Rest], AccOut) ->
             Rest ++ [insert(Key, Value, Child) | AccOut]
     end.
 
+
+lookup(Key, {Key, Value, _}) ->
+    Value;
+lookup(<<KHead:1/binary, _/binary>>, {<<NHead:1/binary, _/binary>>, _NodeVal, _Children}) when KHead /= NHead ->
+    none;
+lookup(Key, {NodeKey, _NodeVal, Children}) ->
+    PrefLen = binary:longest_common_prefix([Key, NodeKey]),
+    <<_Pref:PrefLen/binary, RestPref/binary>> = NodeKey,
+    if
+        RestPref == <<>> ->
+            <<_Pref:PrefLen/binary, RestKey/binary>> = Key,
+            lookup_in_children(RestKey, Children);
+        RestPref /= <<>> ->
+            none
+    end.
+
+lookup_in_children(_Key, []) ->
+    none;
+lookup_in_children(Key, [Child | Rest]) ->
+    case lookup(Key, Child) of
+        none ->
+            lookup_in_children(Key, Rest);
+        Val ->
+            Val
+    end.
