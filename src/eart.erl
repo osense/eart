@@ -11,8 +11,6 @@ new() ->
 
 insert(Key, Value, {NodeKey, _, Children}) when NodeKey == none orelse Key == NodeKey ->
     {Key, Value, Children};
-insert(<<KHead:1/binary, _/binary>>, _Value, {NodeKey = <<NHead:1/binary, _/binary>>, NodeVal, Children}) when KHead /= NHead ->
-    {NodeKey, NodeVal, Children};
 insert(Key, Value, {NodeKey, NodeVal, Children}) ->
     PrefLen = binary:longest_common_prefix([Key, NodeKey]),
     <<Pref:PrefLen/binary, RestPref/binary>> = NodeKey,
