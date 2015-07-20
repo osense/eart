@@ -17,15 +17,12 @@ insert(Key, Value, {NodeKey, NodeVal, Children}) ->
     <<Pref:PrefLen/binary, RestKey/binary>> = Key,
     if
         RestPref == <<>> ->
-            {NodeKey, NodeVal, insert_into_children(RestKey, Value, Children)};
+            {NodeKey, NodeVal, insert_into_children(RestKey, Value, Children, [])};
         (RestPref /= <<>>) and (RestKey /= <<>>) ->
             {Pref, none, [insert(RestKey, Value, new()), {RestPref, NodeVal, Children}]};
         (RestPref /= <<>>) and (RestKey == <<>>) ->
             {Pref, Value, [{RestPref, NodeVal, Children}]}
     end.
-
-insert_into_children(Key, Value, Children) ->
-    insert_into_children(Key, Value, Children, []).
 
 insert_into_children(Key, Value, [], AccOut) ->
     [insert(Key, Value, new()) | AccOut];
@@ -42,8 +39,6 @@ insert_into_children(Key, Value, [Child = {ChildKey, _, _} | Rest], AccOut) ->
 
 lookup(Key, {Key, Value, _}) ->
     Value;
-lookup(<<KHead:1/binary, _/binary>>, {<<NHead:1/binary, _/binary>>, _NodeVal, _Children}) when KHead /= NHead ->
-    none;
 lookup(Key, {NodeKey, _NodeVal, Children}) ->
     PrefLen = binary:longest_common_prefix([Key, NodeKey]),
     <<_Pref:PrefLen/binary, RestPref/binary>> = NodeKey,

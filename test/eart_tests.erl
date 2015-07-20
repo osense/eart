@@ -17,7 +17,16 @@ insert_test() ->
         {<<"e">>, val3, []},
         {<<"an">>, 100,
             [{<<"us">>, val2, []}]}]},
-    T4).
+    T4),
+    T5 = eart:insert(<<"aaa">>, val4, T4),
+    ?assertEqual({<<"">>, none, [
+        {<<"aaa">>, val4, []},
+        {<<"rom">>, none, [
+            {<<"e">>, val3, []},
+            {<<"an">>, 100,
+                [{<<"us">>, val2, []}]}]}
+        ]},
+    T5).
 
 lookup_test() ->
     T1 = eart:new(),
