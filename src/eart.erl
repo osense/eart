@@ -46,12 +46,10 @@ ensure_nonempty(T) ->
 lookup(Key, {Key, Value, _, _}) ->
     Value;
 lookup(Key, {NodeKey, _NodeVal, Fit, NoFit}) ->
-    PrefLen = binary:longest_common_prefix([Key, NodeKey]),
-    <<Pref:PrefLen/binary, RestKey/binary>> = Key,
-    case Pref of
-        NodeKey -> lookup(RestKey, Fit);
-        <<>> -> lookup(Key, NoFit);
-        _ -> none
+    NodeKeyLen = byte_size(NodeKey),
+    case Key of
+        <<NodeKey:NodeKeyLen/binary, RestKey/binary>> -> lookup(RestKey, Fit);
+        _ -> lookup(Key, NoFit)
     end;
 lookup(_Key, empty) ->
     none.
