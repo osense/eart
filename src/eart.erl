@@ -43,13 +43,20 @@ ensure_nonempty(T) ->
     T.
 
 -spec lookup(key(), tree()) -> value().
-lookup(Key, {Key, Value, _, _}) ->
-    Value;
-lookup(Key, {NodeKey, _NodeVal, Fit, NoFit}) ->
-    NodeKeyLen = byte_size(NodeKey),
-    case Key of
-        <<NodeKey:NodeKeyLen/binary, RestKey/binary>> -> lookup(RestKey, Fit);
-        _ -> lookup(Key, NoFit)
+lookup(<<H:8, T/binary>>, Tree) ->
+    lookup1(H, T, Tree).
+
+lookup1(H, T, {<<NH:8, _/binary>>, _, _, NoFit}) when H /= NH ->
+    lookup1(H, T, NoFit);
+lookup1(H, T, {<<_:8, NT/binary>>, NodeVal, Fit, NoFit}) ->
+    NTLen = byte_size(NT),
+    case T of
+        <<NT:NTLen/binary, RestKey/binary>> ->
+            if
+                RestKey == <<>> -> NodeVal;
+                true -> lookup(RestKey, Fit)
+            end;
+        _ -> lookup1(H, T, NoFit)
     end;
-lookup(_Key, empty) ->
+lookup1(_, _, empty) ->
     none.
